@@ -8,11 +8,11 @@ public class Draw extends JPanel {
 
     public static class IntersectionResult {
         public Point2D intersectionPoint;
-        public double averageDistance;
+        public double averageRadius;
 
-        public IntersectionResult(Point2D intersectionPoint, double averageDistance) {
+        public IntersectionResult(Point2D intersectionPoint, double averageRadius) {
             this.intersectionPoint = intersectionPoint;
-            this.averageDistance = averageDistance;
+            this.averageRadius = averageRadius;
         }
     }
 
@@ -28,13 +28,13 @@ public class Draw extends JPanel {
         g2d.drawLine((int) points[1].getX(), (int) points[1].getY(), (int) points[2].getX(), (int) points[2].getY());
 
         g2d.setColor(Color.RED);
-        Point2D bisectorIntersection = calculateIntersection(points).intersectionPoint;
-        double radius = calculateIntersection(points).averageDistance;
+        Point2D bisectorIntersection = calculateIntersectionAndRadius(points).intersectionPoint;
+        double radius = calculateIntersectionAndRadius(points).averageRadius;
         g2d.draw(drawCircle(bisectorIntersection, radius));
 
     }
 
-    public static IntersectionResult calculateIntersection(Point2D[] points) {
+    public static IntersectionResult calculateIntersectionAndRadius(Point2D[] points) {
         Point2D p0 = points[0];
         Point2D p1 = points[1];
         Point2D p2 = points[2];
@@ -55,47 +55,13 @@ public class Draw extends JPanel {
         double intercept1 = midpoint1.getY() - perpendicularSlope1 * midpoint1.getX();
         double intercept2 = midpoint2.getY() - perpendicularSlope2 * midpoint2.getX();
 
-        // Check if line 1 is vertical
-        if (slope1 == Double.POSITIVE_INFINITY) {
-            double intersectionX = midpoint1.getX();
-            double intersectionY = perpendicularSlope2 * intersectionX + intercept2;
-            double distance1 = midpoint1.distance(intersectionX, intersectionY);
-            double distance2 = midpoint2.distance(intersectionX, intersectionY);
-            double averageDistance = (distance1 + distance2) / 2;
-            return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance);
-        }
+        return calculateIntersectionHelper(midpoint1, midpoint2, perpendicularSlope1, perpendicularSlope2, intercept1, intercept2);
+    }
 
-        // Check if line 2 is vertical
-        if (slope2 == Double.POSITIVE_INFINITY) {
-            double intersectionX = midpoint2.getX();
-            double intersectionY = perpendicularSlope1 * intersectionX + intercept1;
-            double distance1 = midpoint1.distance(intersectionX, intersectionY);
-            double distance2 = midpoint2.distance(intersectionX, intersectionY);
-            double averageDistance = (distance1 + distance2) / 2;
-            return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance);
-        }
-
-        // Check if line 1 is horizontal
-        if (slope1 == 0) {
-            double intersectionY = midpoint1.getY();
-            intercept2 = midpoint2.getY() - perpendicularSlope2 * midpoint2.getX();
-            double intersectionX = (intersectionY - intercept2) / perpendicularSlope2;
-            double distance1 = midpoint1.distance(intersectionX, intersectionY);
-            double distance2 = midpoint2.distance(intersectionX, intersectionY);
-            double averageDistance = (distance1 + distance2) / 2;
-            return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance);
-        }
-
-        // Check if line 2 is horizontal
-        if (slope2 == 0) {
-            double intersectionY = midpoint2.getY();
-            intercept1 = midpoint1.getY() - perpendicularSlope1 * midpoint1.getX();
-            double intersectionX = (intersectionY - intercept1) / perpendicularSlope1;
-            double distance1 = midpoint1.distance(intersectionX, intersectionY);
-            double distance2 = midpoint2.distance(intersectionX, intersectionY);
-            double averageDistance = (distance1 + distance2) / 2;
-            return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance);
-        }
+    private static IntersectionResult calculateIntersectionHelper(
+            Point2D midpoint1, Point2D midpoint2,
+            double perpendicularSlope1, double perpendicularSlope2,
+            double intercept1, double intercept2) {
 
         // Calculate the x-coordinate of the intersection point
         double intersectionX = (intercept2 - intercept1) / (perpendicularSlope1 - perpendicularSlope2);
@@ -109,8 +75,6 @@ public class Draw extends JPanel {
 
         return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance);
     }
-
-
 
     private static Ellipse2D drawCircle (Point2D center, double radius){
         int x = (int) (center.getX() - radius);
