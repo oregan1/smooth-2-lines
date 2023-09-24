@@ -18,6 +18,8 @@ public class MouseHelper extends MouseAdapter {
         int x = e.getX();
         int y = e.getY();
 
+        System.out.println(x+","+y);
+
         for (int i = 0; i < points.length; i++) {
             double pointX = points[i].getX();
             double pointY = points[i].getY();
