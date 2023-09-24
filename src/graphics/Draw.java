@@ -1,3 +1,7 @@
+package graphics;
+
+import util.MathHelper;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -5,7 +9,6 @@ import java.awt.geom.Point2D;
 
 public class Draw extends JPanel {
 
-//    public static MathHelper mathHelper;
     public static void draw(Graphics g, Point2D[] points) {
         Graphics2D g2d = (Graphics2D) g;
 
@@ -47,20 +50,19 @@ public class Draw extends JPanel {
     }
 
     private static void drawArc(Graphics2D g2d,Point2D midPoint1, Point2D midPoint2, Point2D center){
-        double startAngle = -1 * (Math.toDegrees(Math.atan2(midPoint1.getY() - center.getY(), midPoint1.getX() - center.getX())));
-
-        double arcAngle = Math.toDegrees(Math.atan2(midPoint1.getY() - center.getY(), midPoint1.getX() - center.getX()) -
-                Math.atan2(midPoint2.getY() - center.getY(), midPoint2.getX() - center.getX()));
-
+        double startAngle = MathHelper.getStartAngle(midPoint1, center);
+        double arcAngle = MathHelper.getArcAngle(midPoint1, midPoint2, center);
         double arcRadius = MathHelper.getAverageRadius(center, midPoint1, midPoint2);
         double arcWidth = 2 * arcRadius;
+
 
         if (arcAngle > 180){
             arcAngle =  -1* (360 - arcAngle);
         }
 
-
-        System.out.println("arcAngle:"+arcAngle + "   StartAngle:"+startAngle);
+        if(arcAngle < -180){
+            arcAngle =  arcAngle + 360;
+        }
 
         g2d.drawArc((int) (center.getX() - arcRadius), (int) (center.getY() - arcRadius), (int) (arcWidth), (int) (2 * arcRadius), (int) startAngle, (int) (arcAngle));
     }

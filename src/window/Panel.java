@@ -1,3 +1,8 @@
+package window;
+
+import util.MouseHelper;
+import graphics.Draw;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
