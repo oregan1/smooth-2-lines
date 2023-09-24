@@ -8,7 +8,7 @@ public class Draw extends JPanel {
     public static class IntersectionResult {
         public Point2D intersectionPoint;
         public double averageRadius;
-        public double angle; // Added angle property
+        public double angle;
 
         public IntersectionResult(Point2D intersectionPoint, double averageRadius, double angle) {
             this.intersectionPoint = intersectionPoint;
@@ -38,33 +38,30 @@ public class Draw extends JPanel {
         Point2D line1EndPoint = new Point2D.Double((p0.getX() + p1.getX()) / 2, (p0.getY() + p1.getY()) / 2);
         Point2D line2EndPoint = new Point2D.Double((p1.getX() + p2.getX()) / 2, (p1.getY() + p2.getY()) / 2);
 
-        // Calculate the angle between the two lines
-        double angle = Math.toDegrees(Math.atan2(line2EndPoint.getY() - center.getY(), line2EndPoint.getX() - center.getX()) -
-                Math.atan2(line1EndPoint.getY() - center.getY(), line1EndPoint.getX() - center.getX()));
-        if (angle < 0) {
-            angle += 360; // Ensure the angle is in the range [0, 360)
-        }
-
-        // Draw the lines
-        g2d.setColor(Color.GREEN); // Change the color for the lines
-        g2d.drawLine((int) center.getX(), (int) center.getY(), (int) line1EndPoint.getX(), (int) line1EndPoint.getY());
-        g2d.drawLine((int) center.getX(), (int) center.getY(), (int) line2EndPoint.getX(), (int) line2EndPoint.getY());
-
-        g2d.setColor(Color.RED);
-        g2d.draw(drawCircle(center, intersectionResult.averageRadius));
-
-        // Output the angle to the console
-        System.out.println("Angle formed between perpendicular bisectors: " + angle);
+        // Calculate the arc angle
+        double arcAngle = Math.toDegrees(Math.atan2(line1EndPoint.getY() - center.getY(), line1EndPoint.getX() - center.getX()) -
+                Math.atan2(line2EndPoint.getY() - center.getY(), line2EndPoint.getX() - center.getX()));
 
         g2d.setColor(Color.BLUE);
-
         // Draw small solid circles at each of the points
         for (Point2D point : points) {
             g2d.fill(drawSolidCircle(point, 5)); // Adjust the radius of the solid circles as needed
         }
+
+        double startAngle = -1 * (Math.toDegrees(Math.atan2(line1EndPoint.getY() - center.getY(), line1EndPoint.getX() - center.getX())));
+
+        double arcRadius = intersectionResult.averageRadius;
+        double arcWidth = 2 * arcRadius;
+
+        if (arcAngle > 180){
+            arcAngle =  -1* (360 - arcAngle);
+        }
+
+        g2d.setColor(Color.RED);
+        g2d.drawArc((int) (center.getX() - arcRadius), (int) (center.getY() - arcRadius), (int) (arcWidth), (int) (2 * arcRadius), (int) startAngle, (int) (arcAngle));
     }
 
-    public static IntersectionResult calculateIntersectionAndRadius(Point2D[] points) {
+    private static IntersectionResult calculateIntersectionAndRadius(Point2D[] points) {
         Point2D p0 = points[0];
         Point2D p1 = points[1];
         Point2D p2 = points[2];
@@ -99,13 +96,6 @@ public class Draw extends JPanel {
         double angle = Math.toDegrees(Math.atan((perpendicularSlope2 - perpendicularSlope1) / (1 + perpendicularSlope1 * perpendicularSlope2)));
 
         return new IntersectionResult(new Point2D.Double(intersectionX, intersectionY), averageDistance, angle);
-    }
-
-    private static Ellipse2D drawCircle(Point2D center, double radius){
-        int x = (int) (center.getX() - radius);
-        int y = (int) (center.getY() - radius);
-
-        return new Ellipse2D.Double(x, y, 2 * radius, 2 * radius);
     }
 
     private static Ellipse2D drawSolidCircle(Point2D center, double radius){
